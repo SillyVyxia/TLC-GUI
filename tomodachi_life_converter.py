@@ -74,7 +74,7 @@ def save_canvas(img: Image, imagepath: Path):
 def convert_canvas_to_png(canvas_path):
     with open(canvas_path, 'rb') as file:
         rawdata = file.read()
-        if Path.match(canvas_path, ".zs"):
+        if canvas_path.name.endswith(".zs"):
             rawdata = zstd.decompress(rawdata)
 
         swizzled = nsw_deswizzle(rawdata, (HEIGHT_OF_IMAGE, WIDTH_OF_IMAGE),
