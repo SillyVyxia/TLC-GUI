@@ -2,6 +2,8 @@ from PIL import Image, ImageCms
 from pyswizzle import nsw_deswizzle, nsw_swizzle
 from pathlib import Path
 import io
+import os
+import sys
 import compression.zstd as zstd
 
 # This script is a refactored version of https://github.com/Timiimiimii/TomoKoreFacepaintTool
@@ -72,7 +74,8 @@ def save_canvas(img: Image, imagepath: Path):
 def convert_canvas_to_png(canvas_path):
     with open(canvas_path, 'rb') as file:
         rawdata = file.read()
-        rawdata = zstd.decompress(rawdata)
+        if canvas_path.name.endswith(".zs"):
+            rawdata = zstd.decompress(rawdata)
 
         swizzled = nsw_deswizzle(rawdata, (HEIGHT_OF_IMAGE, WIDTH_OF_IMAGE),
                                  UNCOMPRESSED_BLOCK_SIZE, BYTES_PER_BLOCK_SWITCH, SWITCH_SWIZZLE_MODE)
@@ -95,5 +98,18 @@ def convert_png_to_canvas(canvas_path):
 
 
 if __name__ == "__main__":
-    # convert_canvas_to_png(Path.cwd() / "UgcFacePaint000.canvas.zs")
-    convert_png_to_canvas(Path.cwd() / "UgcFacePaint000_modified.png")
+    if len(sys.argv) > 1:
+        files = sys.argv[1:]
+        for path in files:
+            if os.path.exists(os.path.abspath(path)):
+                print(f"Found file: {path}")
+                if path.endswith(("canvas.zs", ".canvas")):
+                    convert_canvas_to_png(Path.cwd() / path)
+                elif path.endswith(".png"):
+                    convert_png_to_canvas(Path.cwd() / path)
+                else:
+                    print("File extention unrecognized.")
+            else:
+                print(f"File {path} doesn't exist.")
+    else:
+        print("No files found, quitting")
