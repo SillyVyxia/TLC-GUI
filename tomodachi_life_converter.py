@@ -135,7 +135,10 @@ def convert_png_to_ugctex(ugctex_path):
     if not is_srgb_image(ugctex):
         ugctex = set_image_gamma(ugctex, ENCODING_GAMMA)
 
-    assert ugctex.size == (UGC_WIDTH, UGC_HEIGHT), "Ugctex must be 512 x 512 in dimensions"
+    """
+    Todo: readd asserts from the valid ugctex sizes
+    """
+
     save_ugctex(ugctex, ugctex_path)
 
 
@@ -167,7 +170,11 @@ if __name__ == "__main__":
                 elif path.endswith("ugctex.zs"):
                     convert_ugctex_to_png(Path.cwd() / path)
                 elif path.endswith(".png"):
-                    convert_png(Path.cwd() / path)
+                    thing = input("Convert to ugctex? (Y = Yes): ").lower() == "y"
+                    if thing:
+                        convert_png_to_ugctex(Path.cwd() / path)
+                    else:
+                        convert_png_to_canvas(Path.cwd() / path)
                 else:
                     print("File extension unrecognized.")
             else:
