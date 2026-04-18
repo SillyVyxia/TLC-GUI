@@ -11,7 +11,28 @@ import os
 For converting textures.
 Such as UgcCloth000.ugctex.zs or UgcFacePaint000.ugctex.zs
 Simply drag and drop a png onto this script to convert a png into a .ugctex.zs or a .ugctex.zs to convert it into a png
+
+Beware, this python script is quite untested
 """
+
+"""
+These lengths are copied from github.com/Timiimiimii/TomoKoreFacepaintTool/pull/6/changes - a pull request by KLanausse "Fix exporting non-facepaint UGC Textures"
+"""
+RAWDATA_LENGTHS = {
+    131072: {
+        "Dimensions": (HEIGHT_OF_IMAGE_TEXTURE, WIDTH_OF_IMAGE_TEXTURE),
+        "Uncompressed_block_size": UNCOMPRESSED_BLOCK_SIZE_TEXTURE
+    },
+    98304: {
+        "Dimensions": (HEIGHT_OF_IMAGE_TEXTURE_NON_FACEPAINT, WIDTH_OF_IMAGE_TEXTURE_NON_FACEPAINT),
+        "Uncompressed_block_size": UNCOMPRESSED_BLOCK_SIZE_TEXTURE_NON_FACEPAINT
+    },
+}
+
+IMAGE_SIZE_LENGTHS = {
+    (512, 512): 131072,
+    (384, 384): 98304
+}
 
 
 def save_ugctex(img: Image, imagepath: Path):
@@ -19,12 +40,20 @@ def save_ugctex(img: Image, imagepath: Path):
     img.save(dds_bytes, format='DDS', pixel_format='DXT1')
 
     save_ugctex_path = imagepath.with_name(f"{imagepath.stem}.ugctex.zs")
-    ugctex_swizzled_data = nsw_swizzle(dds_bytes.getvalue()[128:], (HEIGHT_OF_IMAGE_TEXTURE, WIDTH_OF_IMAGE_TEXTURE),
-                                       UNCOMPRESSED_BLOCK_SIZE_TEXTURE, BYTES_PER_BLOCK_SWITCH_TEXTURE, SWITCH_SWIZZLE_MODE)
-    check_if_path_exists(save_ugctex_path)
-    ugctex_swizzled_data = zstd.compress(ugctex_swizzled_data)
-    with open(save_ugctex_path, 'wb') as f:
-        f.write(bytes(ugctex_swizzled_data))
+
+    if img.size in IMAGE_SIZE_LENGTHS:
+        rawdata_length = RAWDATA_LENGTHS[IMAGE_SIZE_LENGTHS[img.size]]
+        rawdata_dimensions = rawdata_length["Dimensions"]
+        rawdata_uncompressed_block_size = rawdata_length["Uncompressed_block_size"]
+        ugctex_swizzled_data = nsw_swizzle(dds_bytes.getvalue()[128:], rawdata_dimensions,
+                                           rawdata_uncompressed_block_size, BYTES_PER_BLOCK_SWITCH_TEXTURE, SWITCH_SWIZZLE_MODE)
+        check_if_path_exists(save_ugctex_path)
+        ugctex_swizzled_data = zstd.compress(ugctex_swizzled_data)
+        with open(save_ugctex_path, 'wb') as f:
+            f.write(bytes(ugctex_swizzled_data))
+    else:
+        print(
+            f"imgsize for texture conversion is not in one of the expected dimensions {IMAGE_SIZE_LENGTHS.keys()}")
 
 
 def convert_ugctex_to_png(ugctext_path):
@@ -32,13 +61,18 @@ def convert_ugctex_to_png(ugctext_path):
         rawdata = file.read()
         if ugctext_path.name.endswith(".zs"):
             rawdata = zstd.decompress(rawdata)
+        rawdata_length = len(rawdata)
+        if rawdata_length in RAWDATA_LENGTHS:
+            rawdata_values = RAWDATA_LENGTHS[rawdata_length]
+            swizzled = nsw_deswizzle(rawdata, rawdata_values["Dimensions"],
+                                     rawdata_values["Uncompressed_block_size"], BYTES_PER_BLOCK_SWITCH_TEXTURE, SWITCH_SWIZZLE_MODE)
 
-        swizzled = nsw_deswizzle(rawdata, (HEIGHT_OF_IMAGE_TEXTURE, WIDTH_OF_IMAGE_TEXTURE),
-                                 UNCOMPRESSED_BLOCK_SIZE_TEXTURE, BYTES_PER_BLOCK_SWITCH_TEXTURE, SWITCH_SWIZZLE_MODE)
+            img = Image.open(io.BytesIO(DDS_HEADER + swizzled))
 
-        img = Image.open(io.BytesIO(DDS_HEADER + swizzled))
-
-        save_file(img, ugctext_path)
+            save_file(img, ugctext_path)
+        else:
+            print(
+                f"rawdata for texture conversion is not in one of the expected dimensions {RAWDATA_LENGTHS.keys()}")
 
 
 def convert_png_to_ugctex(ugctex_path):
@@ -66,3 +100,7 @@ if __name__ == "__main__":
                     print("File extension unrecognized.")
             else:
                 print(f"File {path} doesn't exist.")
+    else:
+        # convert_ugctex_to_png(Path.cwd() / "UgcCloth003.ugctex.zs")
+        pass
+        # convert_png_to_ugctex(Path.cwd() / "UgcCloth003OUTPUT.png")
