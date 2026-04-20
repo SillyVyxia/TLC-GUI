@@ -122,7 +122,7 @@ def convert_png_to_ugctex(ugctex_path):
 
     save_ugctex(ugctex, ugctex_path)
 
-
+"""
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         files = sys.argv[1:]
@@ -140,3 +140,4 @@ if __name__ == "__main__":
         convert_ugctex_to_png(Path.cwd() / "UgcFood000.ugctex.zs")
         pass
         # convert_png_to_ugctex(Path.cwd() / "UgcCloth003OUTPUT.png")
+"""

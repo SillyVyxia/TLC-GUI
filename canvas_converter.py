@@ -58,7 +58,7 @@ def convert_png_to_canvas(canvas_path):
     canvas = canvas.convert(IMAGE_MODE).tobytes('raw')
     save_canvas(canvas, canvas_path)
 
-
+"""
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         files = sys.argv[1:]
@@ -79,3 +79,4 @@ if __name__ == "__main__":
         # facepaint = "UgcCloth000"
         # convert_canvas_to_png(Path.cwd() / f"{facepaint}.canvas.zs")
         # convert_png_to_canvas(Path.cwd() / f"{facepaint}OUTPUT.png")
+"""

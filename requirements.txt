@@ -1,2 +1,3 @@
 Pillow
 pyswizzle
+dearpygui

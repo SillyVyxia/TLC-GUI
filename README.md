@@ -1,3 +1,8 @@
+### TLC-GUI
+TLC-GUI is a fork of Tomodachi Life Converter that simply just adds a ui to the whole procress for ease of use.
+The GUI is not very good as it is my first time ever making a ui.
+
+# original readme to make merging easier
 This script is a refactored version of https://github.com/Timiimiimii/TomoKoreFacepaintTool (https://gamebanana.com/tools/22280) with ZSTD compression and decompression added and some experimental icc profile stuff changed for ease of use
 
 You need to use python 3.14 in order to get the ZSTD library from the python standard library. Otherwise the script will crash!

@@ -3,3 +3,6 @@
 *.clip
 *.psd
 __pycache__
+dist
+build
+*.spec
