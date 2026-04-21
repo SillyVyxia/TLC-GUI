@@ -81,7 +81,7 @@ def convertFile():
             else:
                 convert_canvas_to_png(cwdPath)
         else:
-            show_info("Error", "Error: File type unreconized. Please put a valid file type.", defaultPromptCB)
+            show_info("Error", "Error: File type unrecognized. Please put a valid file type.", defaultPromptCB)
             continue
     if successfuls > 0:
         show_info("Success!", "This operation has completed successfully.", defaultPromptCB)

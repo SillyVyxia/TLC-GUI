@@ -1,4 +1,4 @@
-### TLC-GUI
+# TLC-GUI
 TLC-GUI is a fork of Tomodachi Life Converter that simply just adds a ui to the whole procress for ease of use.
 The GUI is not very good as it is my first time ever making a ui.
 
